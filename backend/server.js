@@ -1,8 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import productRoutes from "./routes/product-routes.js";
+import userRoutes from "./routes/user-routes.js";
+import orderRoutes from "./routes/order-routes.js";
 import { databaseConnection } from "./config/database.js";
 import error from "./middleware/error.js";
+import cookieParser from 'cookie-parser';
 
 // main app
 const app = express();
@@ -12,6 +15,7 @@ dotenv.config( { path: 'backend/config/config.env' } );
 
 // body parser
 app.use( express.json() );
+app.use( cookieParser() );
 
 // database connection
 databaseConnection();
@@ -23,8 +27,10 @@ process.on( 'uncaughtException', ( err ) => {
     process.exit( 1 );
 } );
 
-// product routes
+// all routes
 app.use( '/api/v1', productRoutes );
+app.use( '/api/v1', userRoutes );
+app.use( '/api/v1', orderRoutes );
 
 // error handler
 app.use( error );
