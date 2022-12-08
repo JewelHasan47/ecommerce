@@ -75,25 +75,25 @@ const updateOrderStatus = asyncErrors( async ( req, res, next ) => {
     const order = await Order.findById( req.params.id );
 
     if ( !order ){
-        return next( new ErrorHandler( 'Order not found with this id', 404 ) );
+        return next( new ErrorHandler( "Order not found with this Id", 404 ) );
     }
 
-    if ( order.orderStatus === 'Delivered' ){
-        return next( new ErrorHandler( 'You have already delivered this order.', 400 ) );
+    if ( order.orderStatus === "Delivered" ){
+        return next( new ErrorHandler( "You have already delivered this order", 400 ) );
     }
 
-    order.orderItems.forEach( ( order ) => {
-        updateStock( order.product, order.quantity );
-    } );
-
+    if ( req.body.status === "Delivered" ){
+        for ( const o of order.orderItems ){
+            await updateStock( o.product, o.quantity );
+        }
+    }
     order.orderStatus = req.body.status;
 
-    if ( req.body.status === 'Delivered' ){
-        return order.deliveredAt = Date.now();
+    if ( req.body.status === "Delivered" ){
+        order.deliveredAt = Date.now();
     }
 
     await order.save( { validateBeforeSave: false } );
-
     res.status( 200 ).json( {
         success: true,
     } );
